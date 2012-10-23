@@ -10,4 +10,6 @@ recipe "wkhtmltopdf", "Installs wkhtmltopdf from binary"
 supports "amazon"
 supports "fedora"
 supports "centos"
+supports "ubuntu"
+supports "debian"
 

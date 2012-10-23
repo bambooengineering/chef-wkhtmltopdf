@@ -4,42 +4,37 @@ binary_name = node[:wkhtmltopdf][:binary_name]
 
 case node['platform_family']
 when 'debian'
-  %w(xvfb wkhtmltopdf).each do |p|
-    package p do
-      action :install
-    end
-  end
+  packages = %w(libxrender1 libxext6 libfontconfig1)
 when 'redhat'
   packages = %w(libXrender libXext urw-fonts openssl-devel fontconfig-devel)
-
-  packages.each do |pkg|
-    package pkg do
-      action :install
-    end
-  end
-
-  remote_file download_dest do
-    source node[:wkhtmltopdf][:static_download_url]
-    mode '0644'
-    action :create_if_missing
-  end
-
-  execute "Extract #{download_dest}" do
-    command <<-COMMAND
-      tar jxvf #{download_dest} -C #{cache_dir}
-    COMMAND
-    creates File.join(cache_dir, binary_name)
-  end
-
-  execute "Copy #{binary_name} to /usr/local/bin" do
-    command <<-COMMAND
-      cp #{File.join(cache_dir, binary_name)} /usr/local/bin/wkhtmltopdf
-    COMMAND
-    creates '/usr/local/bin/wkhtmltopdf'
-  end
-else
-  raise "Unsupported platform family #{node['platform_family']}"
 end
+
+packages.each do |pkg|
+  package pkg do
+    action :install
+  end
+end
+
+remote_file download_dest do
+  source node[:wkhtmltopdf][:static_download_url]
+  mode '0644'
+  action :create_if_missing
+end
+
+execute "Extract #{download_dest}" do
+  command <<-COMMAND
+    tar jxvf #{download_dest} -C #{cache_dir}
+  COMMAND
+  creates File.join(cache_dir, binary_name)
+end
+
+execute "Copy #{binary_name} to /usr/local/bin" do
+  command <<-COMMAND
+    cp #{File.join(cache_dir, binary_name)} /usr/local/bin/wkhtmltopdf
+  COMMAND
+  creates '/usr/local/bin/wkhtmltopdf'
+end
+
 
 
 
